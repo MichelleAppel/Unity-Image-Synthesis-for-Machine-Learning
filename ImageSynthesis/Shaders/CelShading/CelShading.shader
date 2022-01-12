@@ -5,6 +5,7 @@
 	//			This shader was written by Casey MacNeil		//	   
 	//														   	//
 	//////////////////////////////////////////////////////////////
+	
 	Properties{
 		_MainTex("Texture", 2D) = "white" {}
 		_NormalMap("Normal Map", 2D) = "bump" {}

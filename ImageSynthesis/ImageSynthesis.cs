@@ -3,6 +3,7 @@ using UnityEngine.Rendering;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using MLDataset;
 using Newtonsoft.Json;
 
@@ -18,8 +19,9 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			new CapturePass() { name = "_layer", supportsAntialiasing = false },
 			new CapturePass() { name = "_depth" },
 			new CapturePass() { name = "_normals" },
-			new CapturePass() { name = "_outlines", supportsAntialiasing = false }
-			};
+			new CapturePass() { name = "_outlines", supportsAntialiasing = false },
+			new CapturePass() { name = "_groundtruth", supportsAntialiasing = false }
+		};
 
 		public struct CapturePass {
 			// configuration
@@ -85,12 +87,12 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 		}
 
 
-		static private void SetupCameraWithReplacementShader(Camera cam, Shader shader, ReplacelementModes mode)
+		private static void SetupCameraWithReplacementShader(Camera cam, Shader shader, ReplacelementModes mode)
 		{
 			SetupCameraWithReplacementShader(cam, shader, mode, Color.black);
 		}
 
-		static private void SetupCameraWithReplacementShader(Camera cam, Shader shader, ReplacelementModes mode, Color clearColor)
+		private static void SetupCameraWithReplacementShader(Camera cam, Shader shader, ReplacelementModes mode, Color clearColor)
 		{
 			var cb = new CommandBuffer();
 			cb.SetGlobalFloat("_OutputMode", (int)mode); // @TODO: CommandBuffer is missing SetGlobalInt() method
@@ -101,13 +103,13 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			cam.clearFlags = CameraClearFlags.SolidColor;
 		}
 
-		static private void SetupCameraWithPostShader(Camera cam, Material material, DepthTextureMode depthTextureMode = DepthTextureMode.None)
-		{
-			var cb = new CommandBuffer();
-			cb.Blit(null, BuiltinRenderTextureType.CurrentActive, material);
-			cam.AddCommandBuffer(CameraEvent.AfterEverything, cb);
-			cam.depthTextureMode = depthTextureMode;
-		}
+		// private static void SetupCameraWithPostShader(Camera cam, Material material, DepthTextureMode depthTextureMode = DepthTextureMode.None)
+		// {
+		// 	var cb = new CommandBuffer();
+		// 	cb.Blit(null, BuiltinRenderTextureType.CurrentActive, material);
+		// 	cam.AddCommandBuffer(CameraEvent.AfterEverything, cb);
+		// 	cam.depthTextureMode = depthTextureMode;
+		// }
 
 		enum ReplacelementModes {
 			ObjectId 			= 0,
@@ -115,7 +117,8 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			DepthCompressed		= 2,
 			DepthMultichannel	= 3,
 			Normals				= 4,
-			Outlines 			= 5
+			Outlines 			= 5,
+			GroundTruth			= 6
 		};
 
 		public void OnCameraChange()
@@ -144,6 +147,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			SetupCameraWithReplacementShader(capturePasses[3].camera, uberReplacementShader, ReplacelementModes.DepthCompressed, Color.white);
 			SetupCameraWithReplacementShader(capturePasses[4].camera, uberReplacementShader, ReplacelementModes.Normals);
 			SetupCameraWithReplacementShader(capturePasses[5].camera, uberReplacementShader, ReplacelementModes.Outlines);
+			SetupCameraWithReplacementShader(capturePasses[6].camera, uberReplacementShader, ReplacelementModes.GroundTruth);
 		}
 
 
@@ -167,6 +171,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				mpb.SetColor("_ObjectColor",IDColor);
 				mpb.SetColor("_CategoryColor", NameColor);
 				mpb.SetColor("_Outlines", ColorEncoding.EncodeObjectOutlines(id));
+				mpb.SetInt("_GroundTruth", ColorEncoding.EncodeIDAsGroundTruth(id));
 				r.SetPropertyBlock(mpb);
 
 				if (saveMetaFile)
@@ -207,8 +212,6 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			}
 
 			var filenameExtension = System.IO.Path.GetExtension(filename);
-			if (filenameExtension == "")
-				filenameExtension = ".png";
 			var filenameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
 			
 			if(!Directory.Exists(path))
@@ -246,8 +249,9 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			var renderRT = (!needsRescale) ? finalRT :
 				RenderTexture.GetTemporary(mainCamera.pixelWidth, mainCamera.pixelHeight, depth, format, readWrite, antiAliasing);
 			
-			var tex = new Texture2D(width, height, TextureFormat.RGB24, false);
-			var groundtruth_tex = new Texture2D(width, height, TextureFormat.R16, false);
+			var textureformat = cam.name == "_groundtruth" ? TextureFormat.R16 : TextureFormat.RGB24;
+			
+			var tex = new Texture2D(width, height, textureformat, false);
 
 			var prevActiveRT = RenderTexture.active;
 			var prevCameraRT = cam.targetTexture;
@@ -270,10 +274,18 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
 			tex.Apply();
 			
-			
+			// encode texture
+			byte[] bytes = cam.name == "_groundtruth" ? tex.GetRawTextureData() : tex.EncodeToPNG();
 
-			// encode texture into PNG
-			var bytes = tex.EncodeToPNG();
+			if (cam.name == "_groundtruth")
+			{
+				filename += ".bin";
+			}
+			else
+			{
+				filename += ".png";
+			}
+
 			File.WriteAllBytes(filename, bytes);					
 
 			// restore state and cleanup

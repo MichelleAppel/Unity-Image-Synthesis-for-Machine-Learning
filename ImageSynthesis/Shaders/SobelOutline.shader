@@ -1,12 +1,5 @@
 ﻿Shader "Hidden/SobelOutline"
 {
-
-	//////////////////////////////////////////////////////////////
-	//														   	//
-	//			This shader was written by Casey MacNeil		//	   
-	//														   	//
-	//////////////////////////////////////////////////////////////
-
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
@@ -71,11 +64,6 @@
 
 				fixed4 FragColor = ApplySobel(textures);
 
-				// _Outline = fixed4(fixed3(1, 1, 1) - _Outline.rgb, 1.0);  // invert outline
-				// FragColor = fixed4(FragColor.rgb * _Outline, 1.0);       // inverse outline * sobel
-				// FragColor = fixed4(fixed3(1, 1, 1) - FragColor.rgb, 1.0);// inverse sobel
-				// FragColor = fixed4(FragColor.rgb * textures[4], 1.0);
-
 				float threshold = 0.001;
 				float bright = 0.33333 * (FragColor.rgb.r + FragColor.rgb.g + FragColor.rgb.b);
 				if (bright > threshold)
@@ -86,7 +74,6 @@
 				{
 					return fixed4(0.0, 0.0, 0.0, 1.0);
 				}
-				// return fixed4(FragColor.rgb, 1.0);
 				
 			}
 			ENDCG

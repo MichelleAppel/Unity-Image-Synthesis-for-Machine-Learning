@@ -10,6 +10,7 @@ Properties {
 	_ObjectColor ("Object Color", Color) = (1,1,1,1)
 	_CategoryColor ("Catergory Color", Color) = (0,1,0,1)
 	_Outlines ("Outlines", Color) = (1,1,1,1)
+	_GroundTruth ("Ground Truth", int) = 1
 }
 
 SubShader {
@@ -18,6 +19,7 @@ CGINCLUDE
 fixed4 _ObjectColor;
 fixed4 _CategoryColor;
 fixed4 _Outlines;
+int _GroundTruth;
 int _OutputMode;
 
 // remap depth: [0 @ eye .. 1 @ far] => [0 @ near .. 1 @ far]
@@ -68,6 +70,10 @@ float4 Output(float depth01, float3 normal)
 	else if (_OutputMode == 5) // Outlines
 	{
 		return _Outlines;
+	}
+	else if (_OutputMode == 6) // Ground truth
+	{
+		return _GroundTruth;
 	}
 
 	// unsupported _OutputMode

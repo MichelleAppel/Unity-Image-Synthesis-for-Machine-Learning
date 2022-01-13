@@ -61,7 +61,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			OnCameraChange();
 			OnSceneChange();
 		}
-
+		
 		void LateUpdate()
 		{
 			if (DetectPotentialSceneChangeInEditor())
@@ -85,8 +85,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			var newCamera = go.GetComponent<Camera>();
 			return newCamera;
 		}
-
-
+		
 		private static void SetupCameraWithReplacementShader(Camera cam, Shader shader, ReplacelementModes mode)
 		{
 			SetupCameraWithReplacementShader(cam, shader, mode, Color.black);
@@ -102,14 +101,6 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			cam.backgroundColor = clearColor;
 			cam.clearFlags = CameraClearFlags.SolidColor;
 		}
-
-		// private static void SetupCameraWithPostShader(Camera cam, Material material, DepthTextureMode depthTextureMode = DepthTextureMode.None)
-		// {
-		// 	var cb = new CommandBuffer();
-		// 	cb.Blit(null, BuiltinRenderTextureType.CurrentActive, material);
-		// 	cam.AddCommandBuffer(CameraEvent.AfterEverything, cb);
-		// 	cam.depthTextureMode = depthTextureMode;
-		// }
 
 		enum ReplacelementModes {
 			ObjectId 			= 0,
@@ -157,10 +148,11 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			var mpb = new MaterialPropertyBlock();
 
 			List<Meta> metaObjects = new List<Meta>();
-				
+
+			int id = 0;
 			foreach (var r in renderers)
 			{
-				var id = r.gameObject.GetInstanceID();
+				// var id = r.gameObject.GetInstanceID(); (these range between -10000 to 10000 for some reason)
 				var layer = r.gameObject.layer;
 				var tag = r.gameObject.tag;
 				var objectname = r.gameObject.name;
@@ -171,7 +163,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				mpb.SetColor("_ObjectColor",IDColor);
 				mpb.SetColor("_CategoryColor", NameColor);
 				mpb.SetColor("_Outlines", ColorEncoding.EncodeObjectOutlines(id));
-				mpb.SetInt("_GroundTruth", ColorEncoding.EncodeIDAsGroundTruth(id));
+				mpb.SetInt("_GroundTruth", id);
 				r.SetPropertyBlock(mpb);
 
 				if (saveMetaFile)
@@ -185,8 +177,9 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 					meta.nameColor = NameColor;
 
 					metaObjects.Add(meta);
-					
 				}
+
+				id++;
 			}
 
 			if (saveMetaFile)
@@ -248,7 +241,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				RenderTexture.GetTemporary(width, height, depth, format, readWrite, antiAliasing);
 			var renderRT = (!needsRescale) ? finalRT :
 				RenderTexture.GetTemporary(mainCamera.pixelWidth, mainCamera.pixelHeight, depth, format, readWrite, antiAliasing);
-			
+
 			var textureformat = cam.name == "_groundtruth" ? TextureFormat.R16 : TextureFormat.RGB24;
 			
 			var tex = new Texture2D(width, height, textureformat, false);

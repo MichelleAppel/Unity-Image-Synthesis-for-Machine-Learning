@@ -23,14 +23,14 @@ int _GroundTruth;
 int _OutputMode;
 
 // remap depth: [0 @ eye .. 1 @ far] => [0 @ near .. 1 @ far]
-inline float Linear01FromEyeToLinear01FromNear(float depth01)
+inline int Linear01FromEyeToLinear01FromNear(float depth01)
 {
 	float near = _ProjectionParams.y;
 	float far = _ProjectionParams.z;
 	return (depth01 - near/far) * (1 + near/far);
 }
 
-float4 Output(float depth01, float3 normal)
+fixed4 Output(float depth01, float3 normal)
 {
 	/* see ImageSynthesis.cs
 	enum ReplacelementModes {
@@ -73,12 +73,13 @@ float4 Output(float depth01, float3 normal)
 	}
 	else if (_OutputMode == 6) // Ground truth
 	{
-		return _GroundTruth;
+		return (float) _GroundTruth/1000 + 0.005;
 	}
 
 	// unsupported _OutputMode
 	return float4(1, 0.5, 0.5, 1);
 }
+
 ENDCG
 
 // Support for different RenderTypes
@@ -104,7 +105,7 @@ v2f vert( appdata_base v ) {
 	o.nz.w = COMPUTE_DEPTH_01;
 	return o;
 }
-fixed4 frag(v2f i) : SV_Target {
+float4 frag(v2f i) : SV_Target {
 	return Output (i.nz.w, i.nz.xyz);
 }
 ENDCG

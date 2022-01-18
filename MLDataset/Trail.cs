@@ -30,9 +30,8 @@ namespace MLDataset
         {
             // 2. get game object coordinates
             positionCoordinates.Add(transform.localPosition + _camera.transform.localPosition);
-        
         }
-    
+
         void OnApplicationQuit()
         {
             var pathWithExtension = Path.Combine(path, fileName+ ".json");
@@ -41,7 +40,9 @@ namespace MLDataset
                 Directory.CreateDirectory(path);
             
             // 3. write to json file
-            string jsonCoordinates = JsonConvert.SerializeObject(positionCoordinates);
+            var settings = new Newtonsoft.Json.JsonSerializerSettings();
+            settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            string jsonCoordinates = JsonConvert.SerializeObject(positionCoordinates, settings);
 
             File.WriteAllText(
                 pathWithExtension, 

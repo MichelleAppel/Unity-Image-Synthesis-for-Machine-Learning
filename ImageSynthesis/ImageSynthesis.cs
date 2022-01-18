@@ -160,7 +160,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				Color32 IDColor = ColorEncoding.EncodeIDAsColor(id);
 				Color32 NameColor = ColorEncoding.EncodeNameAsColor(objectname);
 				
-				mpb.SetColor("_ObjectColor",IDColor);
+				mpb.SetColor("_ObjectColor", IDColor);
 				mpb.SetColor("_CategoryColor", NameColor);
 				mpb.SetColor("_Outlines", ColorEncoding.EncodeObjectOutlines(id));
 				mpb.SetInt("_GroundTruth", id);
@@ -268,6 +268,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			tex.Apply();
 			
 			// encode texture
+
 			byte[] bytes = cam.name == "_groundtruth" ? tex.GetRawTextureData() : tex.EncodeToPNG();
 
 			if (cam.name == "_groundtruth")

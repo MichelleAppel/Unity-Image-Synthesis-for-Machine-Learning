@@ -270,6 +270,9 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			tex_RGB.ReadPixels(new Rect(0, 0, tex_RGB.width, tex_RGB.height), 0, 0);
 			tex_RGB.Apply();
 			
+			tex_R16.ReadPixels(new Rect(0, 0, tex_RGB.width, tex_RGB.height), 0, 0);
+			tex_R16.Apply();
+			
 			// encode texture
 			byte[] bytes_PNG = tex_RGB.EncodeToPNG();
 			byte[] bytes_raw = tex_R16.GetRawTextureData();

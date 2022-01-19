@@ -15,12 +15,12 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 		// pass configuration
 		public static CapturePass[] capturePasses = {
 			new CapturePass() { name = "_img" },
-			new CapturePass() { name = "_id", supportsAntialiasing = false },
-			new CapturePass() { name = "_layer", supportsAntialiasing = false },
+			new CapturePass() { name = "_objectid", supportsAntialiasing = false },
+			new CapturePass() { name = "_objectname", supportsAntialiasing = false },
 			new CapturePass() { name = "_depth" },
 			new CapturePass() { name = "_normals" },
 			new CapturePass() { name = "_outlines", supportsAntialiasing = false },
-			new CapturePass() { name = "_groundtruth", supportsAntialiasing = false }
+			new CapturePass() { name = "_indexid", supportsAntialiasing = false }
 		};
 
 		public struct CapturePass {
@@ -37,7 +37,8 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 		private Shader uberReplacementShader;
 		private Material outlineMaterial;
 
-		public bool saveToDisk = true;
+		public bool saveAsPNG = true;
+		public bool saveAsBin = true;
 		public bool saveMetaFile = true;
 		public string path = "output/MLDataset";
 		public string metaFileName = "meta";
@@ -70,7 +71,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			// @TODO: detect if camera properties actually changed
 			OnCameraChange();
 
-			if ( saveToDisk ) {
+			if ( saveAsPNG || saveAsBin ) {
 				Save("" + fileCounter, width, height, path);
 				fileCounter++;
 			}
@@ -242,9 +243,11 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			var renderRT = (!needsRescale) ? finalRT :
 				RenderTexture.GetTemporary(mainCamera.pixelWidth, mainCamera.pixelHeight, depth, format, readWrite, antiAliasing);
 
-			var textureformat = cam.name == "_groundtruth" ? TextureFormat.R16 : TextureFormat.RGB24;
-			
-			var tex = new Texture2D(width, height, textureformat, false);
+			var textureformat_RGB = TextureFormat.RGB24;
+			var textureformat_R16 = TextureFormat.R16;
+
+			var tex_RGB = new Texture2D(width, height, textureformat_RGB, false);
+			var tex_R16 = new Texture2D(width, height, textureformat_R16, false);
 
 			var prevActiveRT = RenderTexture.active;
 			var prevCameraRT = cam.targetTexture;
@@ -264,29 +267,29 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			}
 
 			// read offsreen texture contents into the CPU readable texture
-			tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
-			tex.Apply();
+			tex_RGB.ReadPixels(new Rect(0, 0, tex_RGB.width, tex_RGB.height), 0, 0);
+			tex_RGB.Apply();
 			
 			// encode texture
+			byte[] bytes_PNG = tex_RGB.EncodeToPNG();
+			byte[] bytes_raw = tex_R16.GetRawTextureData();
 
-			byte[] bytes = cam.name == "_groundtruth" ? tex.GetRawTextureData() : tex.EncodeToPNG();
-
-			if (cam.name == "_groundtruth")
+			if (saveAsPNG)
 			{
-				filename += ".bin";
-			}
-			else
-			{
-				filename += ".png";
+				File.WriteAllBytes(filename+".png", bytes_PNG);	
 			}
 
-			File.WriteAllBytes(filename, bytes);					
+			if (saveAsBin)
+			{
+				File.WriteAllBytes(filename+".bin", bytes_raw);
+			}
 
 			// restore state and cleanup
 			cam.targetTexture = prevCameraRT;
 			RenderTexture.active = prevActiveRT;
 
-			Object.DestroyImmediate(tex);
+			Object.DestroyImmediate(tex_RGB);
+			Object.DestroyImmediate(tex_R16);
 			RenderTexture.ReleaseTemporary(finalRT);
 		}
 

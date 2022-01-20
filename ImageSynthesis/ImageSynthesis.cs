@@ -39,6 +39,8 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 
 		public bool saveAsPNG = true;
 		public bool saveAsBin = true;
+		
+		public string savePasses = "_img, _indexid, _normals, _outlines";
 		public bool saveMetaFile = true;
 		public string path = "output/MLDataset";
 		public string metaFileName = "meta";
@@ -227,7 +229,10 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 		private void Save(string filenameWithoutExtension, string filenameExtension, int width, int height)
 		{
 			foreach (var pass in capturePasses)
-				Save(pass.camera, filenameWithoutExtension + pass.name + filenameExtension, width, height, pass.supportsAntialiasing, pass.needsRescale);
+				if (savePasses.Contains(pass.name))
+				{
+					Save(pass.camera, filenameWithoutExtension + pass.name + filenameExtension, width, height, pass.supportsAntialiasing, pass.needsRescale);
+				}
 		}
 
 		private void Save(Camera cam, string filename, int width, int height, bool supportsAntialiasing, bool needsRescale)
@@ -243,11 +248,8 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			var renderRT = (!needsRescale) ? finalRT :
 				RenderTexture.GetTemporary(mainCamera.pixelWidth, mainCamera.pixelHeight, depth, format, readWrite, antiAliasing);
 
-			var textureformat_RGB = TextureFormat.RGB24;
-			var textureformat_R16 = TextureFormat.R16;
-
-			var tex_RGB = new Texture2D(width, height, textureformat_RGB, false);
-			var tex_R16 = new Texture2D(width, height, textureformat_R16, false);
+			var tex_RGB = new Texture2D(width, height, TextureFormat.RGB24, false);
+			var tex_R16 = new Texture2D(width, height, TextureFormat.R16, false);
 
 			var prevActiveRT = RenderTexture.active;
 			var prevCameraRT = cam.targetTexture;
@@ -267,23 +269,21 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			}
 
 			// read offsreen texture contents into the CPU readable texture
-			tex_RGB.ReadPixels(new Rect(0, 0, tex_RGB.width, tex_RGB.height), 0, 0);
-			tex_RGB.Apply();
-			
-			tex_R16.ReadPixels(new Rect(0, 0, tex_RGB.width, tex_RGB.height), 0, 0);
-			tex_R16.Apply();
 			
 			// encode texture
-			byte[] bytes_PNG = tex_RGB.EncodeToPNG();
-			byte[] bytes_raw = tex_R16.GetRawTextureData();
-
 			if (saveAsPNG)
 			{
+				tex_RGB.ReadPixels(new Rect(0, 0, tex_RGB.width, tex_RGB.height), 0, 0);
+				tex_RGB.Apply();
+				byte[] bytes_PNG = tex_RGB.EncodeToPNG();
 				File.WriteAllBytes(filename+".png", bytes_PNG);	
 			}
 
 			if (saveAsBin)
 			{
+				tex_R16.ReadPixels(new Rect(0, 0, tex_R16.width, tex_R16.height), 0, 0);
+				tex_R16.Apply();
+				byte[] bytes_raw = tex_R16.GetRawTextureData();
 				File.WriteAllBytes(filename+".bin", bytes_raw);
 			}
 

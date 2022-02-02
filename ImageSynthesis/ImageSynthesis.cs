@@ -28,7 +28,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			public string name;
 			public bool supportsAntialiasing;
 			public bool needsRescale;
-			public CapturePass(string name_) { name = name_; supportsAntialiasing = true; needsRescale = false; camera = null; }
+			public CapturePass(string name_) { name = name_; supportsAntialiasing = false; needsRescale = true; camera = null; }
 
 			// impl
 			public Camera camera;
@@ -103,6 +103,8 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			cam.SetReplacementShader(shader, "RenderType"); // Add "RenderType" to look through windows, else put ""
 			cam.backgroundColor = clearColor;
 			cam.clearFlags = CameraClearFlags.SolidColor;
+			
+			
 		}
 
 		enum ReplacelementModes {
@@ -130,6 +132,8 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				// copy all "main" camera parameters into capturing camera
 				pass.camera.CopyFrom(mainCamera);
 				pass.camera.renderingPath = RenderingPath.Forward;
+				pass.camera.allowMSAA = false;
+				pass.camera.allowHDR = false;
 
 				// set targetDisplay here since it gets overriden by CopyFrom()
 				pass.camera.targetDisplay = targetDisplay++;

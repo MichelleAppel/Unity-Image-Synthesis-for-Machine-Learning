@@ -4,8 +4,8 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_Outline ("Outline Color", Color) = (0,0,0,1)
-		_ResX("Resolution X", Float) = 1024
-		_ResY("Resolution Y", Float) = 1024
+		_ResX("Resolution X", Float) = 8
+		_ResY("Resolution Y", Float) = 8
 		_Threshold("Threshold", Float) = 0.001
 	}
 	SubShader
@@ -64,8 +64,9 @@
 
 				fixed4 FragColor = ApplySobel(textures);
 
-				float threshold = 0.001;
+				float threshold = 0.0001;
 				float bright = 0.33333 * (FragColor.rgb.r + FragColor.rgb.g + FragColor.rgb.b);
+				//return bright;
 				if (bright > threshold)
 				{
 					return fixed4(1.0, 1.0, 1.0, 1.0);

@@ -100,7 +100,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			cb.SetGlobalFloat("_OutputMode", (int)mode); // @TODO: CommandBuffer is missing SetGlobalInt() method
 			cam.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, cb);
 			cam.AddCommandBuffer(CameraEvent.BeforeFinalPass, cb);
-			cam.SetReplacementShader(shader, "");
+			cam.SetReplacementShader(shader, "RenderType"); // Add "RenderType" to look through windows, else put ""
 			cam.backgroundColor = clearColor;
 			cam.clearFlags = CameraClearFlags.SolidColor;
 		}

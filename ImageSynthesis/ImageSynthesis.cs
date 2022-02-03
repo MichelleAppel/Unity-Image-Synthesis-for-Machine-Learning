@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -45,6 +46,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 		public string path = "output/MLDataset";
 		public string metaFileName = "meta";
 		public int fileCounter = 0;
+		public int fileCounterMax = -1;
 		public int width = 2048;
 		public int height = 2048;
 		
@@ -76,6 +78,12 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			if ( saveAsPNG || saveAsBin ) {
 				Save("" + fileCounter, width, height, path);
 				fileCounter++;
+			}
+
+			if (fileCounterMax != -1 && fileCounter >= fileCounterMax)
+			{
+				EditorApplication.ExecuteMenuItem("Edit/Play"); // Exit play mode when collected dataset
+				Application.Quit(); // Exit application when collected dataset
 			}
 		}
 		

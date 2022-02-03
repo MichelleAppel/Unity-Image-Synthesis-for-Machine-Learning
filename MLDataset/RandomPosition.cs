@@ -22,6 +22,8 @@ namespace MLDataset
         
         // Start is called before the first frame update
         void Start () {
+        	Random.seed = 42;
+
             _camera = GetComponent<Camera>();
             
             if (sampleJson)

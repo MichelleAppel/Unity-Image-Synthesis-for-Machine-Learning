@@ -3,4 +3,4 @@
 Create a ML synthesis dataset from a Unity simulation. 
 Based on https://bitbucket.org/Unity-Technologies/ml-imagesynthesis/src/master/.
 
-![example2](https://user-images.githubusercontent.com/17069785/151997574-5f546ffb-a944-4be9-8b64-dd2fb23661e4.png)
+![dataset example](https://user-images.githubusercontent.com/17069785/152363935-74475b8c-f106-40cb-a66b-53458b2b8b8e.png)

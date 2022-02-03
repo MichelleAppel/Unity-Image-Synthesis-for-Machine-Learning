@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.IO;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.UnityConverters;
+using Newtonsoft.Json.UnityConverters.Math;
 
 using UnityEngine;
 
@@ -13,9 +15,12 @@ namespace MLDataset
         public string fileName = "coordinate_list";
         
         // 1. Empty list of coordinates
-        [SerializeField]
-        private List<Vector3> positionCoordinates = 
+        // [SerializeField]
+        public List<Vector3> position = 
             new List<Vector3>();
+        
+        public List<UnityEngine.Quaternion> rotation = 
+            new List<UnityEngine.Quaternion>();
         
         private Camera _camera;
     
@@ -29,7 +34,8 @@ namespace MLDataset
         void Update()
         {
             // 2. get game object coordinates
-            positionCoordinates.Add(transform.localPosition + _camera.transform.localPosition);
+            position.Add(transform.localPosition + _camera.transform.localPosition);
+            rotation.Add(transform.localRotation);
         }
 
         void OnApplicationQuit()
@@ -38,15 +44,16 @@ namespace MLDataset
 
             if(!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-            
-            // 3. write to json file
-            var settings = new Newtonsoft.Json.JsonSerializerSettings();
-            settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            string jsonCoordinates = JsonConvert.SerializeObject(positionCoordinates, settings);
 
+            // 3. write to json file
+            // string jsonPosition = JsonConvert.SerializeObject(position);
+            // string jsonPosition = JsonConvert.SerializeObject(rotation);
+
+            string jsonPosition = JsonUtility.ToJson(this);
+            
             File.WriteAllText(
                 pathWithExtension, 
-                jsonCoordinates);
+                jsonPosition);
         }
     }
 }

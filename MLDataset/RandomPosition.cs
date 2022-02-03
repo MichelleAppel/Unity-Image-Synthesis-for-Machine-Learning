@@ -3,6 +3,7 @@ using UnityEngine;
 using ArchViz_Interface.Scripts.ImageSynthesis;
 using Newtonsoft.Json;
 using UnityEngine.UIElements;
+using static MLDataset.Trail;
 
 namespace MLDataset
 {
@@ -11,14 +12,22 @@ namespace MLDataset
     {
         public bool sampleUniform = false;
         public bool sampleJson = true;
-
+        public bool sampleJsonWithNormal = false;
+        public bool inOrder = true;
+        public int idx = 0;
+        
         public string jsonPath = "output/json/coordinate_list.json";
 
         private Camera _camera;
-        private List<Vector3> positionCoordinates = 
-            new List<Vector3>();
 
         private int positionsLength;
+
+        private string json;
+        private Trail trail;
+        private List<Vector3> positions;
+        private List<UnityEngine.Quaternion> rotations ;
+        private int length;
+        
         
         // Start is called before the first frame update
         void Start () {
@@ -26,11 +35,13 @@ namespace MLDataset
 
             _camera = GetComponent<Camera>();
             
-            if (sampleJson)
+            if (sampleJson || sampleJsonWithNormal)
             {
-                string positionsJson = System.IO.File.ReadAllText(jsonPath);
-                positionCoordinates = JsonConvert.DeserializeObject<List<Vector3>>(positionsJson);
-                positionsLength = positionCoordinates.Count;
+                json = System.IO.File.ReadAllText(jsonPath);
+                trail = JsonConvert.DeserializeObject<Trail>(json);
+                positions = trail.position;
+                rotations = trail.rotation;
+                length = positions.Count;
             }
         }
 
@@ -63,10 +74,32 @@ namespace MLDataset
             );
             transform.rotation = Quaternion.Euler(randomRotation);
         }
-		
+        
         private void SampleFromJson()
         {
-            transform.position = positionCoordinates[Random.Range(0, positionsLength)];
+            if (!inOrder)
+            {
+                idx = Random.Range(0, length);
+            }
+            else
+            {
+                idx++;
+            }
+            
+            transform.position = positions[idx];
+            transform.rotation = rotations[idx];
+        }
+        private void SampleJsonWithNormal()
+        {
+            if (!inOrder)
+            {
+                idx = Random.Range(0, length);
+            }
+            else
+            {
+                idx++;
+            }
+            transform.position = positions[idx];
 
             Vector3 randomRotation = new Vector3(
                 RandomGaussian(-90.0f, 90.0f),

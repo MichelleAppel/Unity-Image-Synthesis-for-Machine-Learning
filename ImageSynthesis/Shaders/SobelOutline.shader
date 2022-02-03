@@ -62,9 +62,9 @@
 					textures[j] = tex2D(_MainTex, i.uv + offsets[j]).rgb;
 				}
 
-				fixed4 FragColor = ApplySobel(textures);
+				fixed4 FragColor = ApplyRobert(textures);
 
-				float threshold = 0.0001;
+				float threshold = 0.000001;
 				float bright = 0.33333 * (FragColor.rgb.r + FragColor.rgb.g + FragColor.rgb.b);
 				//return bright;
 				if (bright > threshold)

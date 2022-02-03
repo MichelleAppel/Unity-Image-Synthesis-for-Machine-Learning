@@ -211,4 +211,74 @@ inline fixed4 ApplySobel(fixed3 textures[9])
 
 }
 
+inline fixed4 ApplyRobert(fixed3 textures[9])
+{
+	float3x3 KERNEL_ROBERTX = float3x3(
+		1.0, 0.0, 0.0,
+		0.0, -1.0, 0.0,
+		0.0, 0.0, 0.0
+		);
+	float3x3 KERNEL_ROBERTY = float3x3(
+		0.0, 1.0, 0.0,
+		-1.0, 0.0, 0.0,
+		0.0, 0.0, 0.0
+		);
+
+	float mag = 0.0;
+
+	float mGx = 0.0;
+	float mGy = 0.0;
+
+	for (int i = 0, k = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++, k++)
+		{
+			float Gx = KERNEL_ROBERTX[i][j] * Grayscale(textures[k]);
+			float Gy = KERNEL_ROBERTY[i][j] * Grayscale(textures[k]);
+
+			mGx += Gx;
+			mGy += Gy;
+		}
+	}
+
+	mag = sqrt(pow(mGx, 2) + pow(mGy, 2));
+	float orientation = degrees(atan2(mGy, mGx)) / 360.0;
+	fixed3 mag3 = fixed3(mag, mag, mag);
+	return fixed4(mag3, orientation);
+}
+
+inline fixed4 ApplySmooth(fixed3 textures[9])
+{
+	float2x2 KERNEL_SMOOTHX = float2x2(
+		1.0, 1.0,
+		1.0, 1.0
+		);
+	float2x2 KERNEL_SMOOTY = float2x2(
+		1.0, 1.0,
+		1.0, 1.0
+		);
+
+	float mag = 0.0;
+
+	float mGx = 0.0;
+	float mGy = 0.0;
+
+	for (int i = 0, k = 0; i < 2; i++)
+	{
+		for (int j = 0; j < 2; j++, k++)
+		{
+			float Gx = KERNEL_SMOOTHX[i][j] * Grayscale(textures[k]);
+			float Gy = KERNEL_SMOOTY[i][j] * Grayscale(textures[k]);
+
+			mGx += Gx;
+			mGy += Gy;
+		}
+	}
+
+	mag = sqrt(pow(mGx, 2) + pow(mGy, 2));
+	float orientation = degrees(atan2(mGy, mGx)) / 360.0;
+	fixed3 mag3 = fixed3(mag, mag, mag);
+	return fixed4(mag3, orientation);
+}
+
 #endif

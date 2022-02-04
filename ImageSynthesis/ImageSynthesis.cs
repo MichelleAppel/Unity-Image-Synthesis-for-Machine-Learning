@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEditor;
@@ -7,6 +8,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using MLDataset;
 using Newtonsoft.Json;
+using Object = UnityEngine.Object;
 
 namespace ArchViz_Interface.Scripts.ImageSynthesis {
 	// [ExecuteInEditMode]
@@ -30,26 +32,32 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			public bool supportsAntialiasing;
 			public bool needsRescale;
 			public CapturePass(string name_) { name = name_; supportsAntialiasing = false; needsRescale = true; camera = null; }
-
-			// impl
 			public Camera camera;
 		};
 		
 		private Shader uberReplacementShader;
 		private Material outlineMaterial;
-
-		public bool saveAsPNG = true;
-		public bool saveAsBin = true;
 		
-		public string savePasses = "_img, _indexid, _normals, _outlines";
+		[Header("Save options")]
+		public bool toggleCapture = false;
+		public bool stepCapture = false;
+		[Space(10)]
+		public string saveFormat = ".png";
+		[Space(10)]
+		public List<string> savePasses = new List<string>() { "_img", "_indexid", "_outlines", "_depth", "_normals" }; // TODO: solve vector not supported Unity error
+		[Space(10)]
 		public bool saveMetaFile = true;
+		[Space(10)]
 		public string path = "output/MLDataset";
 		public string metaFileName = "meta";
+		[Space(10)]
 		public int fileCounter = 0;
 		public int fileCounterMax = -1;
-		public int width = 2048;
+
+		[Header("Size")]
+		public int width = 2048; // TODO: set to screen size
 		public int height = 2048;
-		
+
 		void Start()
 		{
 			// default fallbacks, if shaders are unspecified
@@ -69,13 +77,22 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 		
 		void LateUpdate()
 		{
-			if (DetectPotentialSceneChangeInEditor())
-				OnSceneChange();
+			// if (DetectPotentialSceneChangeInEditor())
+			// 	OnSceneChange();
 
 			// @TODO: detect if camera properties actually changed
 			OnCameraChange();
-
-			if ( saveAsPNG || saveAsBin ) {
+			if (Input.GetKeyDown("v"))
+			{
+				stepCapture = true;
+				toggleCapture = true;
+			}
+			if (Input.GetKeyDown("c")) // capture
+			{
+				toggleCapture = !toggleCapture;
+			}
+			
+			if ( toggleCapture) {
 				Save("" + fileCounter, width, height, path);
 				fileCounter++;
 			}
@@ -85,8 +102,14 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				EditorApplication.ExecuteMenuItem("Edit/Play"); // Exit play mode when collected dataset
 				Application.Quit(); // Exit application when collected dataset
 			}
+
+			if (stepCapture)
+			{
+				stepCapture = false;
+				toggleCapture = false;
+			}
 		}
-		
+
 		private Camera CreateHiddenCamera(string name)
 		{
 			var go = new GameObject (name, typeof (Camera));
@@ -181,7 +204,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				mpb.SetInt("_GroundTruth", id);
 				r.SetPropertyBlock(mpb);
 
-				if (saveMetaFile)
+				if (saveMetaFile && toggleCapture)
 				{
 					Meta meta = new Meta();
 					meta.objectname = objectname;
@@ -283,15 +306,15 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			// read offsreen texture contents into the CPU readable texture
 			
 			// encode texture
-			if (saveAsPNG)
+			if (saveFormat == ".png")
 			{
 				tex_RGB.ReadPixels(new Rect(0, 0, tex_RGB.width, tex_RGB.height), 0, 0);
 				tex_RGB.Apply();
 				byte[] bytes_PNG = tex_RGB.EncodeToPNG();
-				File.WriteAllBytes(filename+".png", bytes_PNG);	
+				File.WriteAllBytes(filename+".png", bytes_PNG);
 			}
 
-			if (saveAsBin)
+			if (saveFormat == ".bin")
 			{
 				tex_R16.ReadPixels(new Rect(0, 0, tex_R16.width, tex_R16.height), 0, 0);
 				tex_R16.Apply();
@@ -306,6 +329,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			Object.DestroyImmediate(tex_RGB);
 			Object.DestroyImmediate(tex_R16);
 			RenderTexture.ReleaseTemporary(finalRT);
+
 		}
 
 		#if UNITY_EDITOR

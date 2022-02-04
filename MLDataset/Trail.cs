@@ -13,7 +13,7 @@ namespace MLDataset
     {
         public string path = "output/json";
         public string fileName = "coordinate_list";
-        
+
         // 1. Empty list of coordinates
         // [SerializeField]
         public List<Vector3> position = 
@@ -21,6 +21,9 @@ namespace MLDataset
         
         public List<UnityEngine.Quaternion> rotation = 
             new List<UnityEngine.Quaternion>();
+
+        public bool toggleSave = false;
+        public bool stepSave = false;
         
         private Camera _camera;
     
@@ -33,9 +36,27 @@ namespace MLDataset
         // Update is called once per frame
         void Update()
         {
-            // 2. get game object coordinates
-            position.Add(transform.localPosition + _camera.transform.localPosition);
-            rotation.Add(transform.localRotation);
+            if (Input.GetKeyDown("z"))
+            {
+                toggleSave = !toggleSave;
+            }
+            if (Input.GetKeyDown("x")) // save one frame
+            {
+                toggleSave = true;
+                stepSave = true;
+            }
+            if (toggleSave)
+            {
+                // 2. get game object coordinates
+                position.Add(transform.localPosition + _camera.transform.localPosition);
+                rotation.Add(transform.localRotation);
+            }
+            if (stepSave)
+            {
+                toggleSave = false;
+                stepSave = false;
+            }
+
         }
 
         void OnApplicationQuit()

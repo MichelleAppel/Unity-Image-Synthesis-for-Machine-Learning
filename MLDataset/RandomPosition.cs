@@ -14,7 +14,7 @@ namespace MLDataset
         public bool sampleJson = true;
         public bool sampleJsonWithNormal = false;
         public bool inOrder = true;
-        public int idx = 0;
+        public int idx = -1;
         
         public string jsonPath = "output/json/coordinate_list.json";
 
@@ -31,7 +31,7 @@ namespace MLDataset
         
         // Start is called before the first frame update
         void Start () {
-        	Random.seed = 42;
+        	Random.InitState(42);
 
             _camera = GetComponent<Camera>();
             
@@ -51,6 +51,10 @@ namespace MLDataset
             if (sampleJson)
             {
                 SampleFromJson();
+            }
+            else if (sampleJsonWithNormal)
+            {
+                SampleJsonWithNormal();
             }
             else if (sampleUniform)
             {
@@ -84,11 +88,16 @@ namespace MLDataset
             else
             {
                 idx++;
+                if (idx >= length)
+                {
+                    idx = 0;
+                }
             }
             
             transform.position = positions[idx];
             transform.rotation = rotations[idx];
         }
+        
         private void SampleJsonWithNormal()
         {
             if (!inOrder)
@@ -98,6 +107,10 @@ namespace MLDataset
             else
             {
                 idx++;
+                if (idx >= length)
+                {
+                    idx = 0;
+                }
             }
             transform.position = positions[idx];
 

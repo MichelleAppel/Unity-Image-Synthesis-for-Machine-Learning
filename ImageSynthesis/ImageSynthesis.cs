@@ -55,7 +55,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 		public int fileCounterMax = -1;
 
 		[Header("Size")]
-		public int width = 2048; // TODO: set to screen size
+		public int width = 2048;
 		public int height = 2048;
 
 		void Start()
@@ -69,7 +69,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			for (int q = 1; q < capturePasses.Length; q++)
 				capturePasses[q].camera = CreateHiddenCamera (capturePasses[q].name);
 
-			capturePasses[5].camera.gameObject.AddComponent<PostProcessing_Sobel>(); // Outlines
+			capturePasses[5].camera.gameObject.AddComponent<PostProcessing_Sobel>(); // Outlines TODO: figure out where resolution is passed
 
 			OnCameraChange();
 			OnSceneChange();
@@ -77,7 +77,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 		
 		void LateUpdate()
 		{
-			// if (DetectPotentialSceneChangeInEditor())
+			// if (DetectPotentialSceneChangeInEditor()) // TODO: add more scenes
 			// 	OnSceneChange();
 
 			// @TODO: detect if camera properties actually changed
@@ -134,8 +134,6 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 			cam.SetReplacementShader(shader, "RenderType"); // Add "RenderType" to look through windows, else put ""
 			cam.backgroundColor = clearColor;
 			cam.clearFlags = CameraClearFlags.SolidColor;
-			
-			
 		}
 
 		enum ReplacelementModes {
@@ -255,36 +253,43 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				WaitForEndOfFrameAndSave(pathWithoutExtension, filenameExtension, width, height));
 		}
 
-		private IEnumerator WaitForEndOfFrameAndSave(string filenameWithoutExtension, string filenameExtension, int width, int height)
+		private IEnumerator WaitForEndOfFrameAndSave(string filenameWithoutExtension, string filenameExtension, int imgWidth, int imgHeight)
 		{
 			yield return new WaitForEndOfFrame();
-			Save(filenameWithoutExtension, filenameExtension, width, height);
+			Save(filenameWithoutExtension, filenameExtension, imgWidth, imgHeight);
 		}
 
-		private void Save(string filenameWithoutExtension, string filenameExtension, int width, int height)
+		private void Save(string filenameWithoutExtension, string filenameExtension, int imgWidth, int imgHeight)
 		{
 			foreach (var pass in capturePasses)
 				if (savePasses.Contains(pass.name))
 				{
-					Save(pass.camera, filenameWithoutExtension + pass.name + filenameExtension, width, height, pass.supportsAntialiasing, pass.needsRescale);
+					Save(pass.camera, filenameWithoutExtension + pass.name + filenameExtension, imgWidth, imgHeight, pass.supportsAntialiasing, pass.needsRescale);
 				}
 		}
 
-		private void Save(Camera cam, string filename, int width, int height, bool supportsAntialiasing, bool needsRescale)
+		private void Save(Camera cam, string filename, int imgWidth, int imgHeight, bool supportsAntialiasing, bool needsRescale)
 		{
-			var mainCamera = GetComponent<Camera>();
+			// var mainCamera = GetComponent<Camera>();
 			var depth = 24;
-			var format = RenderTextureFormat.Default;
 			var readWrite = RenderTextureReadWrite.Default;
 			var antiAliasing = (supportsAntialiasing) ? Mathf.Max(1, QualitySettings.antiAliasing) : 1;
+			
+			var format = RenderTextureFormat.Default;
+			var textureFormat = TextureFormat.RGB24;
+			
+			if (cam.name == "_indexid" || cam.name == "_depth")
+			{
+				format = RenderTextureFormat.R16;
+				textureFormat = TextureFormat.R16;
+			}
 
 			var finalRT =
-				RenderTexture.GetTemporary(width, height, depth, format, readWrite, antiAliasing);
+				RenderTexture.GetTemporary(imgWidth, imgHeight, depth, format, readWrite, antiAliasing);
 			var renderRT = (!needsRescale) ? finalRT :
-				RenderTexture.GetTemporary(mainCamera.pixelWidth, mainCamera.pixelHeight, depth, format, readWrite, antiAliasing);
+				RenderTexture.GetTemporary(imgWidth, imgHeight, depth, format, readWrite, antiAliasing);
 
-			var tex_RGB = new Texture2D(width, height, TextureFormat.RGB24, false);
-			var tex_R16 = new Texture2D(width, height, TextureFormat.R16, false);
+			var tex = new Texture2D(imgWidth, imgHeight, textureFormat, false);
 
 			var prevActiveRT = RenderTexture.active;
 			var prevCameraRT = cam.targetTexture;
@@ -303,31 +308,30 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				RenderTexture.ReleaseTemporary(renderRT);
 			}
 
-			// read offsreen texture contents into the CPU readable texture
+			// read offscreen texture contents into the CPU readable texture
 			
 			// encode texture
 			if (saveFormat == ".png")
 			{
-				tex_RGB.ReadPixels(new Rect(0, 0, tex_RGB.width, tex_RGB.height), 0, 0);
-				tex_RGB.Apply();
-				byte[] bytes_PNG = tex_RGB.EncodeToPNG();
-				File.WriteAllBytes(filename+".png", bytes_PNG);
+				tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
+				tex.Apply();
+				byte[] bytesPNG = tex.EncodeToPNG();
+				File.WriteAllBytes(filename+".png", bytesPNG);
 			}
 
-			if (saveFormat == ".bin")
-			{
-				tex_R16.ReadPixels(new Rect(0, 0, tex_R16.width, tex_R16.height), 0, 0);
-				tex_R16.Apply();
-				byte[] bytes_raw = tex_R16.GetRawTextureData();
-				File.WriteAllBytes(filename+".bin", bytes_raw);
-			}
+			// if (saveFormat == ".bin")
+			// {
+			// 	tex_R16.ReadPixels(new Rect(0, 0, tex_R16.width, tex_R16.height), 0, 0);
+			// 	tex_R16.Apply();
+			// 	byte[] bytes_raw = tex_R16.GetRawTextureData();
+			// 	File.WriteAllBytes(filename+".bin", bytes_raw);
+			// }
 
 			// restore state and cleanup
 			cam.targetTexture = prevCameraRT;
 			RenderTexture.active = prevActiveRT;
 
-			Object.DestroyImmediate(tex_RGB);
-			Object.DestroyImmediate(tex_R16);
+			Object.DestroyImmediate(tex);
 			RenderTexture.ReleaseTemporary(finalRT);
 
 		}

@@ -21,7 +21,9 @@ SubShader {
 		
 	CGINCLUDE
 
-fixed4 _ObjectColor;
+#include <HLSLSupport.cginc>
+	#include <UnityShaderVariables.cginc>
+	fixed4 _ObjectColor;
 fixed4 _CategoryColor;
 fixed4 _Outlines;
 int _GroundTruth;
@@ -36,7 +38,7 @@ inline float Linear01FromEyeToLinear01FromNear(float depth01)
 	return (depth01 - near/far) * (1 + near/far);
 }
 
-fixed4 Output(float depth01, float3 normal)
+float4 Output(float depth01, float3 normal)
 {
 	/* see ImageSynthesis.cs
 	enum ReplacelementModes {
@@ -79,7 +81,7 @@ fixed4 Output(float depth01, float3 normal)
 	}
 	else if (_OutputMode == 6) // Ground truth
 	{
-		return (float) _GroundTruth/1000 + 0.005;
+		return (float)_GroundTruth/(pow(2, 16));
 	}
 
 	// unsupported _OutputMode
@@ -145,8 +147,8 @@ v2f vert( appdata_base v ) {
 	return o;
 }
 uniform sampler2D _MainTex;
-uniform fixed _Cutoff;
-uniform fixed4 _Color;
+// uniform fixed _Cutoff;
+// uniform fixed4 _Color;
 float4 frag(v2f i) : SV_Target {
 	return Output (i.nz.w, i.nz.xyz);
 }

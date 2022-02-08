@@ -4,8 +4,8 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_Outline ("Outline Color", Color) = (0,0,0,1)
-		_ResX("Resolution X", Float) = 8
-		_ResY("Resolution Y", Float) = 8
+		_ResX("Resolution X", Float) = 256
+		_ResY("Resolution Y", Float) = 256
 		_Threshold("Threshold", Float) = 0.001
 	}
 	SubShader
@@ -71,11 +71,7 @@
 				{
 					return fixed4(1.0, 1.0, 1.0, 1.0);
 				}
-				else
-				{
-					return fixed4(0.0, 0.0, 0.0, 1.0);
-				}
-				
+				return fixed4(0.0, 0.0, 0.0, 1.0);
 			}
 			ENDCG
 		}

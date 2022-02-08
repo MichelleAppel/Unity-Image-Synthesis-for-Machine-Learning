@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 public class ColorEncoding
 {
@@ -40,9 +41,9 @@ public class ColorEncoding
 		return new Color32 (r, g, b, 255);
 	}
 	
-	public static int EncodeIDAsGroundTruth(int instanceId)
+	public static int EncodeIDAsGroundTruth(string name)
 	{
-		return instanceId;
+		return 1;
 	}
 
 	public static Color EncodeObjectOutlines(int instanceId)

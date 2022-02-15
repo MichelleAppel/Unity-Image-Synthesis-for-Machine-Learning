@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using ArchViz_Interface.Scripts.ImageSynthesis;
 using Newtonsoft.Json;
-using UnityEngine.UIElements;
-using static MLDataset.Trail;
 
 namespace MLDataset
 {

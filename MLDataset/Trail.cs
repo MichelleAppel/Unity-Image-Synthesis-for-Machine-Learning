@@ -1,10 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.UnityConverters;
-using Newtonsoft.Json.UnityConverters.Math;
-
 using UnityEngine;
 
 namespace MLDataset

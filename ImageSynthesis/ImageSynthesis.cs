@@ -1,11 +1,8 @@
-using System;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using MLDataset;
 using Newtonsoft.Json;
 using Object = UnityEngine.Object;

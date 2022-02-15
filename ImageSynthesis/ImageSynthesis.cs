@@ -206,6 +206,7 @@ namespace ArchViz_Interface.Scripts.ImageSynthesis {
 				{
 					Meta meta = new Meta();
 					meta.objectname = objectname;
+					meta.parentsname = r.transform.parent.gameObject.name;
 					meta.id = id;
 					meta.tag = tag;
 					meta.layer = layer;

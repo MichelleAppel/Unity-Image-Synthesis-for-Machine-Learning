@@ -131,6 +131,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1235435079}
     m_Modifications:
     - target: {fileID: 100000, guid: 72ee9d8c5b3bcbb4a80b155c212d90cb, type: 3}
+      propertyPath: m_Name
+      value: Environment_Sphere air
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 72ee9d8c5b3bcbb4a80b155c212d90cb, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -347,15 +351,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: path
-      value: output/MLDataset_debug
+      value: output/MLDataset_128rot
       objectReference: {fileID: 0}
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: width
-      value: 512
+      value: 128
       objectReference: {fileID: 0}
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: height
-      value: 512
+      value: 128
       objectReference: {fileID: 0}
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: m_Enabled
@@ -395,7 +399,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: fileCounterMax
-      value: 10
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: savePasses.Array.size
@@ -427,11 +431,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6700061532222169741, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: sampleJson
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6700061532222169741, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: sampleJsonWithNormal
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6700061532222169747, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: m_LocalPosition.x

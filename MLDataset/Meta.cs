@@ -5,6 +5,7 @@ namespace MLDataset
     public class Meta
     {
         public string objectname {get; set;}
+        public string parentsname {get; set;}
         public int id {get; set;}
         public int layer {get; set;}
         public string tag {get; set;}

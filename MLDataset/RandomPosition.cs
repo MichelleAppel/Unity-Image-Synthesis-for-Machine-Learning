@@ -10,12 +10,14 @@ namespace MLDataset
 
     public class RandomPosition : MonoBehaviour
     {
+        [Header("Sample method")]
         public bool sampleUniform = false;
         public bool sampleJson = true;
         public bool sampleJsonWithNormal = false;
+        [Space(10)]
         public bool inOrder = true;
         public int idx = -1;
-        
+        [Space(10)]
         public string jsonPath = "output/json/coordinate_list.json";
 
         private Camera _camera;
@@ -50,21 +52,21 @@ namespace MLDataset
         {
             if (sampleJson)
             {
-                SampleFromJson();
+                SampleFromJson(); // Samples position and orientation from JSON
             }
             else if (sampleJsonWithNormal)
             {
-                SampleJsonWithNormal();
+                SampleJsonWithNormal(); // Samples position from JSON, samples rotation from uniform (y) and normal distribution (x)
             }
             else if (sampleUniform)
             {
-                RandomCoordinates();
+                RandomCoordinates(); // Samples uniformly between given boundary
             }
         }
 
         private void RandomCoordinates()
         {
-            Vector3 randomCoordinates = new Vector3(
+            Vector3 randomCoordinates = new Vector3( //TODO: automate range
                 UnityEngine.Random.Range(-16.0f, 5.7f), 
                 UnityEngine.Random.Range(1.0f, 3.9f), 
                 UnityEngine.Random.Range(-7.0f, 1.7f)

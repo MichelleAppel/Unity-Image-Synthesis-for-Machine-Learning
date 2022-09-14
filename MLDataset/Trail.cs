@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace MLDataset
 {
+    [System.Serializable]
     public class Trail : MonoBehaviour
     {
         public string path = "output/json";

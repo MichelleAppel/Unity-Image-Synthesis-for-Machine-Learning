@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class Lights : MonoBehaviour
 {
     private List<Light> lights = new List<Light>();
@@ -21,8 +22,9 @@ public class Lights : MonoBehaviour
     {
         foreach (Light light in lights)
         {
-            int rand = Random.Range(0, 2);
-            light.gameObject.SetActive(rand == 0 ? true : false);
+            //int rand = Random.Range(0, 2);
+            //light.gameObject.SetActive(rand == 0 ? true : false);
+            light.gameObject.SetActive(false);
         }
     }
 }

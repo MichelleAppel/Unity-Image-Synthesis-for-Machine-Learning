@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Newtonsoft.Json;
+// using Newtonsoft.Json;
 
 namespace MLDataset
 {
@@ -8,7 +8,11 @@ namespace MLDataset
     public class RandomPosition : MonoBehaviour
     {
         [Header("Sample method")]
+        public int seed = 42;
         public bool sampleUniform = false;
+        public float rollRange = 0.2f;
+        
+        [Space(10)]
         public bool sampleJson = true;
         public bool sampleJsonWithNormal = false;
         [Space(10)]
@@ -22,22 +26,25 @@ namespace MLDataset
         private int positionsLength;
 
         private string json;
-        private Trail trail;
+        private Trail trail = new Trail();
         private List<Vector3> positions;
         private List<UnityEngine.Quaternion> rotations ;
         private int length;
         
         
+        
         // Start is called before the first frame update
         void Start () {
-        	Random.InitState(42);
+        	Random.InitState(seed);
 
             _camera = GetComponent<Camera>();
             
             if (sampleJson || sampleJsonWithNormal)
             {
                 json = System.IO.File.ReadAllText(jsonPath);
-                trail = JsonConvert.DeserializeObject<Trail>(json);
+                // Debug.Log(json);
+                // trail = JsonConvert.DeserializeObject<Trail>();
+                JsonUtility.FromJsonOverwrite(json, trail);
                 positions = trail.position;
                 rotations = trail.rotation;
                 length = positions.Count;
@@ -73,7 +80,7 @@ namespace MLDataset
             Vector3 randomRotation = new Vector3(
                 UnityEngine.Random.Range(-90.0f, 90.0f),
                 UnityEngine.Random.Range(0.0f, 445.0f),
-                0.0f
+                UnityEngine.Random.Range(-rollRange, rollRange)
             );
             transform.rotation = Quaternion.Euler(randomRotation);
         }
@@ -116,7 +123,7 @@ namespace MLDataset
             Vector3 randomRotation = new Vector3(
                 RandomGaussian(-90.0f, 90.0f),
                 UnityEngine.Random.Range(0.0f, 445.0f),
-                0.0f
+                UnityEngine.Random.Range(-rollRange, rollRange)
             );
             transform.rotation = Quaternion.Euler(randomRotation);
         }

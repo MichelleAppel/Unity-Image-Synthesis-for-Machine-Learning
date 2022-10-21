@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18263349, g: 0.2255698, b: 0.2910314, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -237,7 +237,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: path
-      value: output/448/trainA
+      value: output/448/trainAtest
       objectReference: {fileID: 0}
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: width
@@ -269,11 +269,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: savePasses.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: savePasses.Array.data[1]
       value: _outlines
+      objectReference: {fileID: 0}
+    - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
+      propertyPath: savePasses.Array.data[2]
+      value: _normals
       objectReference: {fileID: 0}
     - target: {fileID: 270214850613146983, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: savePasses.Array.data[3]
@@ -293,7 +297,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6700061532222169741, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: jsonPath
-      value: output/json/coordinate_list_3.json
+      value: output/json/coordinate_list_6.json
       objectReference: {fileID: 0}
     - target: {fileID: 6700061532222169741, guid: 739ae74269f27f64db49377638dcdc56, type: 3}
       propertyPath: m_Enabled

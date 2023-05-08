@@ -1,26 +1,26 @@
-# Simulation Synthesis for Machine Learning
+# Image Synthesis for Machine Learning
 
-Generate a machine learning synthesis dataset from a Unity simulation. This dataset includes multiple modalities: RGB, object segmentation, normals, depth, and outlines.
+This project provides a Unity-based framework to create multi-modal datasets for machine learning tasks. With an easy-to-use setup, you can generate high-quality synthetic data from Unity simulations, including RGB images, object segmentation, normals, depth, and outlines.
 
-This project is based on the Unity Technologies ML Image Synthesis repository: https://bitbucket.org/Unity-Technologies/ml-imagesynthesis/src/master/.
+![dataset example](https://user-images.githubusercontent.com/17069785/152363935-74475b8c-f106-40cb-a66b-53458b2b8b8e.png)
 
-![Example dataset](https://user-images.githubusercontent.com/17069785/152363935-74475b8c-f106-40cb-a66b-53458b2b8b8e.png)
+The framework is built on top of the [Unity ML-ImageSynthesis](https://bitbucket.org/Unity-Technologies/ml-imagesynthesis/src/master/) project and extends its functionality to meet various data generation requirements.
 
 ## Features
 
-- Capture RGB images from the Unity simulation
-- Generate object segmentation masks for individual object instances
-- Compute surface normals and depth maps
-- Create outline images using edge detection techniques
-- Easily integrate with machine learning frameworks
+- Generate a wide range of modalities, including RGB, object segmentation, normals, depth, and outlines.
+- Easy integration with Unity simulations.
+- Customizable settings for camera and image generation.
+- Designed to work seamlessly with Python for data loading and machine learning tasks.
 
 ## Getting Started
 
-1. Clone the repository and open the project in Unity.
-2. Set up the desired simulation scene and attach the camera scripts provided to your Unity cameras.
-3. Configure the camera settings and choose the desired output modalities.
-4. Run the simulation and start capturing the dataset.
-5. Export the dataset for use in machine learning frameworks such as TensorFlow or PyTorch.
+1. Clone this repository to your local machine.
+2. Open the project in Unity.
+3. Set up the cameras and renderers for the desired modalities in your Unity scene.
+4. Configure the settings for the image generation process.
+5. Run the simulation to generate the synthetic dataset.
+6. Integrate the dataset with your Python-based machine learning pipeline.
 
 ## Customizing the Dataset
 

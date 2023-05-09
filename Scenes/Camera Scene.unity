@@ -167,6 +167,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   port: 8080
+  cameras:
+  - {fileID: 5986732543379022067}
+  - {fileID: 1609698803}
 --- !u!1 &1182705210
 GameObject:
   m_ObjectHideFlags: 0
@@ -178,6 +181,7 @@ GameObject:
   - component: {fileID: 1182705211}
   - component: {fileID: 1182705213}
   - component: {fileID: 1182705212}
+  - component: {fileID: 1182705214}
   m_Layer: 0
   m_Name: 5. Depth
   m_TagString: MainCamera
@@ -255,6 +259,22 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1182705214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1182705210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 1182705213}
+  width: 256
+  height: 256
+  mode: depth
 --- !u!1 &1259462203
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,6 +286,7 @@ GameObject:
   - component: {fileID: 1259462204}
   - component: {fileID: 1259462206}
   - component: {fileID: 1259462205}
+  - component: {fileID: 1259462207}
   m_Layer: 0
   m_Name: 4. Normals
   m_TagString: MainCamera
@@ -343,6 +364,22 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1259462207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1259462203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 1259462206}
+  width: 256
+  height: 256
+  mode: normals
 --- !u!1 &1609698803
 GameObject:
   m_ObjectHideFlags: 0
@@ -355,6 +392,7 @@ GameObject:
   - component: {fileID: 1609698807}
   - component: {fileID: 1609698806}
   - component: {fileID: 1609698805}
+  - component: {fileID: 1609698808}
   m_Layer: 0
   m_Name: 3. Outlines
   m_TagString: MainCamera
@@ -447,6 +485,22 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1609698808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1609698803}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 1609698807}
+  width: 256
+  height: 256
+  mode: outlines
 --- !u!1 &1739213110
 GameObject:
   m_ObjectHideFlags: 0
@@ -458,6 +512,7 @@ GameObject:
   - component: {fileID: 1739213111}
   - component: {fileID: 1739213115}
   - component: {fileID: 1739213112}
+  - component: {fileID: 1739213113}
   m_Layer: 0
   m_Name: 2. ObjectIDs
   m_TagString: MainCamera
@@ -492,6 +547,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectIDShader: {fileID: 4800000, guid: c36d9438b3d5b434daeb8f82c314a5fc, type: 3}
+--- !u!114 &1739213113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1739213110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 1739213115}
+  width: 256
+  height: 256
+  mode: objectid
 --- !u!20 &1739213115
 Camera:
   m_ObjectHideFlags: 0
@@ -1001,11 +1072,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  captureWidth: 256
-  captureHeight: 256
-  outputPath: CapturedImages
-  imageNamePrefix: capture_
-  imageCounter: 0
+  targetCamera: {fileID: 5986732543379022078}
+  width: 256
+  height: 256
+  mode: rgb
 --- !u!81 &5986732543379022076
 AudioListener:
   m_ObjectHideFlags: 0

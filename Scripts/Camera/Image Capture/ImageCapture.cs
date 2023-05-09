@@ -1,43 +1,50 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using System.Net.Sockets;
+using System.Text;
 using UnityEngine;
 
 public class ImageCapture : MonoBehaviour
 {
-    public int captureWidth = 256;
-    public int captureHeight = 256;
-    public string outputPath = "CapturedImages";
-    public string imageNamePrefix = "capture_";
-    public int imageCounter = 0;
-    private Camera captureCamera;
-    private RenderTexture renderTexture;
+    public Camera targetCamera;
+    public int width = 256;
+    public int height = 256;
+
+    public string mode;
+    
+    private Texture2D _captureTexture;
 
     void Start()
     {
-        captureCamera = GetComponent<Camera>();
-
-        // Create a new RenderTexture and set the camera's target texture to it
-        renderTexture = new RenderTexture(captureWidth, captureHeight, 24);
-        captureCamera.targetTexture = renderTexture;
+        _captureTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
     }
 
-    public void CaptureImage()
+    public byte[] CaptureImage()
     {
-        // Set the RenderTexture as active and read pixels from it
-        RenderTexture.active = renderTexture;
-        Texture2D image = new Texture2D(captureWidth, captureHeight, TextureFormat.RGB24, false);
-        image.ReadPixels(new Rect(0, 0, captureWidth, captureHeight), 0, 0);
-        image.Apply();
+        RenderTexture rt = new RenderTexture(width, height, 24);
+        targetCamera.targetTexture = rt;
+        targetCamera.Render();
+        RenderTexture.active = rt;
 
-        // Save the image to disk
-        byte[] bytes = image.EncodeToPNG();
-        System.IO.File.WriteAllBytes(Application.dataPath + "/" + outputPath + "/" + imageNamePrefix + imageCounter.ToString() + ".png", bytes);
+        _captureTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        _captureTexture.Apply();
 
-        // Increment the image counter
-        imageCounter++;
-
-        // Clean up
         RenderTexture.active = null;
-        Destroy(image);
+        targetCamera.targetTexture = null;
+        Destroy(rt);
+
+        byte[] data = _captureTexture.EncodeToPNG();
+        return data;
+    }
+    
+    void SendModeHeader(NetworkStream stream, string mode)
+    {
+        byte[] modeBytes = Encoding.ASCII.GetBytes(mode);
+
+        // Send the length of the mode string (4 bytes)
+        byte[] modeLengthBytes = BitConverter.GetBytes(modeBytes.Length);
+        stream.Write(modeLengthBytes, 0, modeLengthBytes.Length);
+
+        // Send the mode string
+        stream.Write(modeBytes, 0, modeBytes.Length);
     }
 }

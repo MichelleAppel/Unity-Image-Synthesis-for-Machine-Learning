@@ -1,50 +1,39 @@
-using System;
-using System.Net.Sockets;
-using System.Text;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class ImageCapture : MonoBehaviour
 {
-    public Camera targetCamera;
-    public int width = 256;
-    public int height = 256;
-
     public string mode;
-    
-    private Texture2D _captureTexture;
+
+    private Camera _camera;
+    private CommandBuffer _commandBuffer;
+    private RenderTexture _renderTexture;
+    private Texture2D _texture2D;
 
     void Start()
     {
-        _captureTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        _camera = GetComponent<Camera>();
+        _commandBuffer = new CommandBuffer();
+        _renderTexture = new RenderTexture(_camera.pixelWidth, _camera.pixelHeight, 0, RenderTextureFormat.ARGB32);
+        _texture2D = new Texture2D(_camera.pixelWidth, _camera.pixelHeight, TextureFormat.RGBA32, false);
     }
 
-    public byte[] CaptureImage()
+    public byte[] CaptureToBuffer()
     {
-        RenderTexture rt = new RenderTexture(width, height, 24);
-        targetCamera.targetTexture = rt;
-        targetCamera.Render();
-        RenderTexture.active = rt;
+        _camera.targetTexture = _renderTexture;
+        _camera.AddCommandBuffer(CameraEvent.AfterEverything, _commandBuffer);
+        _camera.Render();
 
-        _captureTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-        _captureTexture.Apply();
+        RenderTexture.active = _renderTexture;
+        _texture2D.ReadPixels(new Rect(0, 0, _camera.pixelWidth, _camera.pixelHeight), 0, 0);
+        _texture2D.Apply();
 
-        RenderTexture.active = null;
-        targetCamera.targetTexture = null;
-        Destroy(rt);
+        byte[] imageData = ImageConversion.EncodeToPNG(_texture2D);
 
-        byte[] data = _captureTexture.EncodeToPNG();
-        return data;
-    }
-    
-    void SendModeHeader(NetworkStream stream, string mode)
-    {
-        byte[] modeBytes = Encoding.ASCII.GetBytes(mode);
+        _camera.RemoveCommandBuffer(CameraEvent.AfterEverything, _commandBuffer);
+        _camera.targetTexture = null;
 
-        // Send the length of the mode string (4 bytes)
-        byte[] modeLengthBytes = BitConverter.GetBytes(modeBytes.Length);
-        stream.Write(modeLengthBytes, 0, modeLengthBytes.Length);
-
-        // Send the mode string
-        stream.Write(modeBytes, 0, modeBytes.Length);
+        return imageData;
     }
 }

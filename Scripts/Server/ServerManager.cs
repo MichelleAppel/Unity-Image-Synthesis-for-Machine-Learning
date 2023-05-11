@@ -1,102 +1,138 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
+using System.Collections;
+using System.Text;
 using UnityEngine;
 
 public class ServerManager : MonoBehaviour
 {
-    private TcpListener _server;
-    private TcpClient _client;
-    private NetworkStream _stream;
-    private Thread _serverThread;
+    private Thread _listenThread;
+    private static ManualResetEvent _allDone = new ManualResetEvent(false);
 
-    public int port = 8080;
-    public List<GameObject> cameras;
+    private Queue _commandQueue = new Queue();
+    private Socket _clientSocket;
+    
+    public int port = 8090;
+
+    public Camera[] cameras; // Set this in the Unity editor to reference your cameras
 
     void Start()
     {
-        StartServer();
+        _listenThread = new Thread(new ThreadStart(ServerThreadFunc));
+        _listenThread.IsBackground = true;
+        _listenThread.Start();
     }
 
-    void StartServer()
+    void ServerThreadFunc()
     {
+        IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
+        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
+
+        Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
         try
         {
-            _server = new TcpListener(IPAddress.Any, port);
-            _server.Start();
-            Debug.Log("Server started, listening for connections...");
+            listener.Bind(localEndPoint);
+            listener.Listen(1);
 
-            _serverThread = new Thread(ListenForClients)
+            while (true)
             {
-                IsBackground = true
-            };
-            _serverThread.Start();
+                _allDone.Reset();
+
+                Debug.Log("Waiting for a connection...");
+                listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+
+                _allDone.WaitOne();
+            }
         }
         catch (Exception e)
         {
-            Debug.LogError("Error starting server: " + e.Message);
+            Debug.Log(e.ToString());
         }
     }
 
-    void ListenForClients()
+    void Update()
     {
-        while (true)
+        // Process commands on the main thread
+        while (_commandQueue.Count > 0)
         {
-            _client = _server.AcceptTcpClient();
-            Debug.Log("Client connected!");
+            var command = _commandQueue.Dequeue();
 
-            _stream = _client.GetStream();
-
-            foreach (var camera in cameras)
+            if ((string) command == "capture")
             {
-                ImageCapture imageCapture = camera.GetComponent<ImageCapture>();
-                if (imageCapture != null)
+                print("Capturing images");
+                foreach (var camera in cameras)
                 {
-                    SendImage(_stream, imageCapture);
+                    var texture = CaptureCamera(camera);
+                    var bytes = texture.EncodeToPNG();
+                    SendData(bytes, _clientSocket);
                 }
+                // Send end of transmission marker after all images are sent
+                _clientSocket.Send(Encoding.ASCII.GetBytes("EOT"));
             }
+        }
+    }
 
-            _stream.Close();
-            _client.Close();
+    private void AcceptCallback(IAsyncResult ar)
+    {
+        _allDone.Set();
+
+        Socket listener = (Socket)ar.AsyncState;
+        Socket handler = listener.EndAccept(ar);
+
+        _clientSocket = handler;
+
+        // Start receiving data from the client
+        byte[] buffer = new byte[1024];
+        handler.BeginReceive(buffer, 0, buffer.Length, 0, new AsyncCallback(ReceiveCallback), buffer);
+    }
+
+    private void ReceiveCallback(IAsyncResult AR)
+    {
+        byte[] buffer = (byte[])AR.AsyncState;
+        Socket handler = _clientSocket;
+
+        int bytesRead = handler.EndReceive(AR);
+        if (bytesRead > 0)
+        {
+            // Convert the buffer into a command and add it to the command queue
+            var command = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
+            Debug.Log("Received command: " + command);
+            _commandQueue.Enqueue(command);
         }
     }
     
-    void SendImage(NetworkStream stream, ImageCapture imageCapture)
+    // Capture a camera's view to a Texture2D
+    private Texture2D CaptureCamera(Camera camera)
     {
-        byte[] imageData = imageCapture.CaptureImage();
+        RenderTexture currentRT = RenderTexture.active;
 
-        // Send mode header
-        SendModeHeader(stream, imageCapture.mode);
+        RenderTexture renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
+        camera.targetTexture = renderTexture;
+        camera.Render();
 
-        // Send the image data length as an integer (4 bytes)
-        byte[] imageDataLength = BitConverter.GetBytes(imageData.Length);
-        stream.Write(imageDataLength, 0, imageDataLength.Length);
+        RenderTexture.active = renderTexture;
 
-        // Send the image data
-        stream.Write(imageData, 0, imageData.Length);
-        Debug.Log("Image data sent for mode: " + imageCapture.mode);
+        Texture2D image = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
+        image.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+        image.Apply();
+
+        camera.targetTexture = null;
+        RenderTexture.active = currentRT;
+
+        return image;
     }
-    
-    void SendModeHeader(NetworkStream stream, string mode)
-    {
-        byte[] modeBytes = Encoding.ASCII.GetBytes(mode);
 
-        // Send the length of the mode string (4 bytes)
-        byte[] modeLengthBytes = BitConverter.GetBytes(modeBytes.Length);
-        stream.Write(modeLengthBytes, 0, modeLengthBytes.Length);
-
-        // Send the mode string
-        stream.Write(modeBytes, 0, modeBytes.Length);
-    }
-    
-    void OnApplicationQuit()
+    // Send data to the client
+    private void SendData(byte[] data, Socket client)
     {
-        // Close the server and all active connections
-        _server.Stop();
-        if (_stream != null) _stream.Close();
-        if (_client != null) _client.Close();
+        if (client != null)
+        {
+            client.Send(data);
+            // Send end of image marker
+            client.Send(Encoding.ASCII.GetBytes("EOI"));
+        }
     }
 }

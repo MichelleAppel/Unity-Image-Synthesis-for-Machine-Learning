@@ -166,10 +166,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61c5d00342f003f45a587f1e06611466, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 8080
+  port: 8092
   cameras:
-  - {fileID: 5986732543379022067}
-  - {fileID: 1609698803}
+  - {fileID: 1609698807}
+  - {fileID: 5986732543379022078}
 --- !u!1 &1182705210
 GameObject:
   m_ObjectHideFlags: 0
@@ -271,9 +271,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetCamera: {fileID: 1182705213}
-  width: 256
-  height: 256
   mode: depth
 --- !u!1 &1259462203
 GameObject:
@@ -376,9 +373,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetCamera: {fileID: 1259462206}
-  width: 256
-  height: 256
   mode: normals
 --- !u!1 &1609698803
 GameObject:
@@ -497,9 +491,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetCamera: {fileID: 1609698807}
-  width: 256
-  height: 256
   mode: outlines
 --- !u!1 &1739213110
 GameObject:
@@ -559,9 +550,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetCamera: {fileID: 1739213115}
-  width: 256
-  height: 256
   mode: objectid
 --- !u!20 &1739213115
 Camera:
@@ -1072,9 +1060,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c36b093b525aa384b98f59d68c21ed67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetCamera: {fileID: 5986732543379022078}
-  width: 256
-  height: 256
   mode: rgb
 --- !u!81 &5986732543379022076
 AudioListener:

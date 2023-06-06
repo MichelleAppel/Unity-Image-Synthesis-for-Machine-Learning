@@ -13,11 +13,14 @@ public class ServerManager : MonoBehaviour
 
     private Queue _commandQueue = new Queue();
     private Socket _clientSocket;
-    
+    private object _commandQueueLock = new object();
+
     public int port = 8090;
 
     public Camera[] cameras; // Set this in the Unity editor to reference your cameras
 
+    public CameraMovement cameraMovement;
+    
     void Start()
     {
         _listenThread = new Thread(new ThreadStart(ServerThreadFunc));
@@ -56,13 +59,36 @@ public class ServerManager : MonoBehaviour
     void Update()
     {
         // Process commands on the main thread
-        while (_commandQueue.Count > 0)
+        while (true)
         {
-            var command = _commandQueue.Dequeue();
-
-            if ((string) command == "capture")
+            object command = null;
+            lock(_commandQueueLock)
             {
-                print("Capturing images");
+                if (_commandQueue.Count > 0)
+                {
+                    command = _commandQueue.Dequeue();
+                }
+            }
+
+            if (command != null)
+            {
+                // Assume command is the index string now
+                var indexString = (string) command;
+                int index = int.Parse(indexString);
+        
+                // Use index to set pose deterministically
+                SetPose(index);
+
+                // First, send the number of cameras
+                int numCameras = cameras.Length;
+                byte[] numCamerasBytes = BitConverter.GetBytes(numCameras);
+                if (BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(numCamerasBytes); // Ensure we're sending the bytes in network byte order
+                }
+                _clientSocket.Send(numCamerasBytes);
+
+                // Continue with image capture and sending process
                 foreach (var camera in cameras)
                 {
                     var texture = CaptureCamera(camera);
@@ -70,11 +96,25 @@ public class ServerManager : MonoBehaviour
                     SendData(bytes, _clientSocket);
                 }
                 // Send end of transmission marker after all images are sent
-                _clientSocket.Send(Encoding.ASCII.GetBytes("EOT"));
+                try 
+                {
+                    _clientSocket.Send(Encoding.ASCII.GetBytes("EOT"));
+                }
+                catch (Exception e) 
+                {
+                    Debug.Log("Failed to send EOT: " + e.ToString());
+                }
+            }
+            else 
+            {
+                break;
             }
         }
     }
 
+
+    
+    
     private void AcceptCallback(IAsyncResult ar)
     {
         _allDone.Set();
@@ -86,7 +126,14 @@ public class ServerManager : MonoBehaviour
 
         // Start receiving data from the client
         byte[] buffer = new byte[1024];
-        handler.BeginReceive(buffer, 0, buffer.Length, 0, new AsyncCallback(ReceiveCallback), buffer);
+        try
+        {
+            handler.BeginReceive(buffer, 0, buffer.Length, 0, new AsyncCallback(ReceiveCallback), buffer);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Failed to begin receive: " + e.ToString());
+        }
     }
 
     private void ReceiveCallback(IAsyncResult AR)
@@ -94,17 +141,54 @@ public class ServerManager : MonoBehaviour
         byte[] buffer = (byte[])AR.AsyncState;
         Socket handler = _clientSocket;
 
-        int bytesRead = handler.EndReceive(AR);
+        int bytesRead = 0;
+        try 
+        {
+            bytesRead = handler.EndReceive(AR);
+        }
+        catch (Exception e) 
+        {
+            Debug.Log("Failed to end receive: " + e.ToString());
+            return;
+        }
+
         if (bytesRead > 0)
         {
             // Convert the buffer into a command and add it to the command queue
             var command = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            Debug.Log("Received command: " + command);
-            _commandQueue.Enqueue(command);
+            // Debug.Log("Received command: " + command);
+            lock(_commandQueueLock)
+            {
+                _commandQueue.Enqueue(command);
+            }
+        }
+
+        // Be ready to receive again on this connection after processing the command
+        buffer = new byte[1024];
+        try 
+        {
+            handler.BeginReceive(buffer, 0, buffer.Length, 0, new AsyncCallback(ReceiveCallback), buffer);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Failed to begin receive: " + e.ToString());
         }
     }
-    
-    // Capture a camera's view to a Texture2D
+
+    // Set the pose of the camera based on the index
+    private void SetPose(int index)
+    {
+        if (cameraMovement != null) // Check that the cameraMovement reference has been assigned
+        {
+            cameraMovement.SetPose(index);
+        }
+        else
+        {
+            Debug.LogError("CameraMovement reference not assigned in ServerManager.");
+        }
+    }
+
+
     private Texture2D CaptureCamera(Camera camera)
     {
         RenderTexture currentRT = RenderTexture.active;
@@ -121,18 +205,34 @@ public class ServerManager : MonoBehaviour
 
         camera.targetTexture = null;
         RenderTexture.active = currentRT;
-
+        
         return image;
     }
 
-    // Send data to the client
     private void SendData(byte[] data, Socket client)
     {
-        if (client != null)
+        if (client != null && client.Connected)
         {
-            client.Send(data);
+
+            // Send the length of the data first
+            byte[] lengthBytes = BitConverter.GetBytes(data.Length);
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(lengthBytes); // Ensure we're sending the bytes in network byte order
+            }
+            client.Send(lengthBytes, 4, SocketFlags.None);
+
+            // Then send the actual data
+            client.Send(data, data.Length, SocketFlags.None);
+
             // Send end of image marker
-            client.Send(Encoding.ASCII.GetBytes("EOI"));
+            byte[] markerBytes = Encoding.ASCII.GetBytes("EOI");
+            client.Send(markerBytes, markerBytes.Length, SocketFlags.None);
+        }
+        else
+        {
+            Debug.Log("Client socket is null or not connected, skipping SendData");
         }
     }
+
 }

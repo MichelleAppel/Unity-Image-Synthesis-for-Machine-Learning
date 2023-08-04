@@ -246,7 +246,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100000, guid: 6403674fcb6c0f544a93da98b901d86e, type: 3}
       propertyPath: m_Name
-      value: Mirror_Floor
+      value: Mirror
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 6403674fcb6c0f544a93da98b901d86e, type: 3}
       propertyPath: m_Layer
@@ -7930,6 +7930,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1308100272}
     m_Modifications:
     - target: {fileID: 100000, guid: 3c1eccdcb22e3a642b5e2b6f78a56f19, type: 3}
+      propertyPath: m_Name
+      value: AVP6_Groun
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 3c1eccdcb22e3a642b5e2b6f78a56f19, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -7954,8 +7958,16 @@ PrefabInstance:
       value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 100008, guid: 3c1eccdcb22e3a642b5e2b6f78a56f19, type: 3}
+      propertyPath: m_Name
+      value: Edge1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100008, guid: 3c1eccdcb22e3a642b5e2b6f78a56f19, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: 3c1eccdcb22e3a642b5e2b6f78a56f19, type: 3}
+      propertyPath: m_Name
+      value: Edge2
       objectReference: {fileID: 0}
     - target: {fileID: 100010, guid: 3c1eccdcb22e3a642b5e2b6f78a56f19, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -36696,6 +36708,10 @@ PrefabInstance:
       value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 100004, guid: 4bee7285698f40c40b291c2e1c0af1c5, type: 3}
+      propertyPath: m_Name
+      value: Courtyard_Green1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100004, guid: 4bee7285698f40c40b291c2e1c0af1c5, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -36704,12 +36720,20 @@ PrefabInstance:
       value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 100006, guid: 4bee7285698f40c40b291c2e1c0af1c5, type: 3}
+      propertyPath: m_Name
+      value: Courtyard_Green2
+      objectReference: {fileID: 0}
+    - target: {fileID: 100006, guid: 4bee7285698f40c40b291c2e1c0af1c5, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 100006, guid: 4bee7285698f40c40b291c2e1c0af1c5, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 100008, guid: 4bee7285698f40c40b291c2e1c0af1c5, type: 3}
+      propertyPath: m_Name
+      value: Courtyard_Green3
       objectReference: {fileID: 0}
     - target: {fileID: 100008, guid: 4bee7285698f40c40b291c2e1c0af1c5, type: 3}
       propertyPath: m_IsActive

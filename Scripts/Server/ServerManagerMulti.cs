@@ -6,7 +6,7 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 
-public class ServerManager : MonoBehaviour
+public class ServerManagerMulti : MonoBehaviour
 {
     private Thread _listenThread;
     private static ManualResetEvent _allDone = new ManualResetEvent(false);

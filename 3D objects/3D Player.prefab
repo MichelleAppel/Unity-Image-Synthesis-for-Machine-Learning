@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2031444251913513339}
   - component: {fileID: 2031444251913513338}
-  - component: {fileID: 2031444251913513341}
   m_Layer: 0
   m_Name: ServerManager
   m_TagString: Untagged
@@ -45,24 +44,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   port: 8093
-  cameras:
-  - {fileID: 5702689968696597839}
-  - {fileID: 2031444252357734470}
-  - {fileID: 2031444252231605132}
-  cameraMovement: {fileID: 2031444252578149944}
---- !u!114 &2031444251913513341
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2031444251913513336}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d4e55be55a743389920cbe6b468c09f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  port: 8090
   cameras:
   - {fileID: 5702689968696597839}
   - {fileID: 2031444252357734470}

@@ -5,7 +5,6 @@ using UnityEngine;
 public class ObjectIDCamera : MonoBehaviour
 {
     public Shader objectIDShader;
-
     private Camera _camera;
 
     void Start()
